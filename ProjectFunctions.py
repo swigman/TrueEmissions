@@ -9,10 +9,11 @@ Created on Sun Nov  5 12:50:11 2017
 import pandas as pd
 from geopy.geocoders import Nominatim
 import plotly
+import datetime
+import wbdata
+
 plotly.offline.init_notebook_mode(connected=True)
 geolocator = Nominatim()
-
-
 
 def build_multi_index_df(years, countries):
     """

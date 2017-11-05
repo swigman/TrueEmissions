@@ -386,18 +386,18 @@ def MergeDataFrames(dataframe_WB, dataframe_trade, country_dic_wb, country_dic_t
                         continue
     return filled_dataframe
 
-def GetCountryCoordinates(country=None):
+def GetCountryCoordinates(country):
     '''
     Inputs country. Returns the lat/long coordinates the center of the country.
     '''
+    loc = geolocator.geocode(country)
     try:
-        loc = geolocator.geocode(country)
         return (loc.latitude, loc.longitude)
     except:
         print('No location found for '+country)
         return (0,0)
-
-def AddCoordinatesColumn(dataframe, country_dic_trade):
+    
+def AddCoordinatesColumn(dataframe):
     """
     
     This function adds a coordinates column to a dataframe with countries as index. 
@@ -406,7 +406,7 @@ def AddCoordinatesColumn(dataframe, country_dic_trade):
     dataframe['Latitude']=None
     dataframe['Longitude']=None
     for country in dataframe.index:
-        coords=GetCountryCoordinates(country_dic_trade[country])
+        coords=GetCountryCoordinates(country)
         dataframe['Latitude'][country]=coords[0]
         dataframe['Longitude'][country]=coords[1]
     return dataframe
@@ -424,8 +424,6 @@ def RemoveEmissionColumns(dataframe):
     dataframe.drop(columns_to_remove, axis=1, inplace=True)
     return dataframe
 
-
-
 def EmissionFlowDataFrame(dataframe, data):
     """
     Input:
@@ -437,12 +435,11 @@ def EmissionFlowDataFrame(dataframe, data):
     emissions_transferred=[]
 
     for country in dataframe.index:
-        for column in dataframe:
+        for column in dataframe.columns:
             if dataframe[column][country]>0.1:
                 exp_long=data['Longitude'][country]
                 exp_lat=data['Latitude'][country]
                 exp_tup=(exp_long, exp_lat)
-            
                 column_country = column.replace("Emissions to ", "")
                 imp_long=data['Longitude'][column_country]
                 imp_lat=data['Latitude'][column_country]
@@ -478,7 +475,7 @@ def EmissionFlowPlot(coords_df, filename='EmissionFlows.html' ):
                     lat = [ coords_df['start_lat'][i], coords_df['end_lat'][i] ],
                     mode = 'lines',
                     line = dict(
-                    width = 1,
+                    width = 5*float(coords_df['emissions'][i])/float(coords_df['emissions'].max()),
                     color = 'red',
                     ),
                     opacity = float(coords_df['emissions'][i])/float(coords_df['emissions'].max()),

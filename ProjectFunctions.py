@@ -458,6 +458,58 @@ def EmissionFlowDataFrame(dataframe, data):
     coords_df.columns=['start_lon', 'start_lat', 'end_lon', 'end_lat', 'emissions']
     return coords_df
 
+def VisualizeFlowsFromCountry(country, emissions_dataframe, filled_dataframe):
+    
+    emission_country=emissions_dataframe.loc[country].reset_index().T
+    emission_country.columns = emission_country.iloc[0]
+    emission_country=emission_country.drop('index')
+    df_country=EmissionFlowDataFrame(emission_country, filled_dataframe)
+    filename="EmissionFlows"+country+".html"
+    url=EmissionFlowPlot(df_country, filename=filename)
+    return url
+
+def VisualizeFlowsToCountry(country, emissions_dataframe, filled_dataframe):
+    emission_to_country=pd.DataFrame(emissions_dataframe['Emissions to '+country])
+    df_country=EmissionFlowDataFrame_TO(emission_to_country, filled_dataframe)
+    filename="EmissionFlows"+country+".html"
+    url=EmissionFlowPlot(df_country, filename=filename)
+    return url
+
+def EmissionFlowDataFrame_TO(dataframe, data):
+    """
+    Input:
+        - Emission Dataframe (emission_data)
+        - data (complete dataframe)
+    """
+    export_country=[]
+    import_country=[]
+    emissions_transferred=[]
+
+    for country in dataframe.index:
+        for column in dataframe.columns:
+            if dataframe[column][country]>0.1:
+                imp_long=data['Longitude'][country]
+                imp_lat=data['Latitude'][country]
+                imp_tup=(imp_long, imp_lat)
+                column_country = column.replace("Emissions to ", "")
+                exp_long=data['Longitude'][column_country]
+                exp_lat=data['Latitude'][column_country]
+                exp_tup=(exp_long, exp_lat)
+            
+                emissions_to_country=dataframe[column][country]
+            
+                export_country.append(exp_tup)
+                import_country.append(imp_tup)
+                emissions_transferred.append(emissions_to_country)
+    
+    coords_df_export=pd.DataFrame(export_country)
+    coords_df_import=pd.DataFrame(import_country)
+    coords_df_emissions=pd.DataFrame(emissions_transferred)
+    coords_df=pd.concat([coords_df_export, coords_df_import, coords_df_emissions], axis=1)
+    coords_df.columns=['start_lon', 'start_lat', 'end_lon', 'end_lat', 'emissions']
+    return coords_df
+
+
 def EmissionFlowPlot(coords_df, filename='EmissionFlows.html' ):
     """
     

@@ -370,12 +370,12 @@ def MergeDataFrames(dataframe_WB, dataframe_trade, country_dic_wb, country_dic_t
     """
     
     
-    filled_dataframe=dataframe_trade.copy()
+    filled_dataframe=dataframe_trade.copy(deep=False)
     for column in dataframe_WB:
         column_name=column
         filled_dataframe[column_name]=None
         for index in dataframe_trade.index:
-            for index2 in dataframe_trade.index:    
+            for index2 in dataframe_WB.index:    
                 if index==index2 or country_dic_trade[index]==country_dic_wb[index2]:
                     filled_dataframe[column_name][index]=dataframe_WB[column][index2]
                 else:

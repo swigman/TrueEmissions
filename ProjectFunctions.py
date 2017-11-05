@@ -424,6 +424,8 @@ def RemoveEmissionColumns(dataframe):
     dataframe.drop(columns_to_remove, axis=1, inplace=True)
     return dataframe
 
+
+
 def EmissionFlowDataFrame(dataframe, data):
     """
     Input:

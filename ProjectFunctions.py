@@ -465,14 +465,16 @@ def VisualizeFlowsFromCountry(country, emissions_dataframe, filled_dataframe):
     emission_country=emission_country.drop('index')
     df_country=EmissionFlowDataFrame(emission_country, filled_dataframe)
     filename="EmissionFlows"+country+".html"
-    url=EmissionFlowPlot(df_country, filename=filename)
+    title="Emission Flows from " +country+ " to other countries"
+    url=EmissionFlowPlot(df_country, filename=filename, title=title)
     return url
 
 def VisualizeFlowsToCountry(country, emissions_dataframe, filled_dataframe):
     emission_to_country=pd.DataFrame(emissions_dataframe['Emissions to '+country])
     df_country=EmissionFlowDataFrame_TO(emission_to_country, filled_dataframe)
     filename="EmissionFlows"+country+".html"
-    url=EmissionFlowPlot(df_country, filename=filename)
+    title="Emission Flows to " +country+"from other countries"
+    url=EmissionFlowPlot(df_country, filename=filename, title=title)
     return url
 
 def EmissionFlowDataFrame_TO(dataframe, data):
@@ -510,7 +512,7 @@ def EmissionFlowDataFrame_TO(dataframe, data):
     return coords_df
 
 
-def EmissionFlowPlot(coords_df, filename='EmissionFlows.html' ):
+def EmissionFlowPlot(coords_df, filename='EmissionFlows.html' ,title):
     """
     
     This function plots the transferred emissions from country to country. 
@@ -534,7 +536,7 @@ def EmissionFlowPlot(coords_df, filename='EmissionFlows.html' ):
                     )
                                 )
     layout = dict(
-        title = 'Emission Transfers Across World',
+        title = title,
         showlegend = False,
         geo = dict(
             showlakes = True,

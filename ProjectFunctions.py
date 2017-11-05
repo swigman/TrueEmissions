@@ -16,13 +16,24 @@ plotly.offline.init_notebook_mode(connected=True)
 geolocator = Nominatim()
 
 def build_multi_index_df(years, countries):
+    
     """
+    -------
+    
     Function which builds multi index dataframe suitable for this analysis.
     The MultiIndex array is three-dimensional: year*country*country. 
+    
     -------
     Inputs:
-        - years
-        -countries
+        - years     : A list of the years to include in
+                      the multi-index dataframe.
+                      
+        - countries : A list of the countries to include 
+                      in the multi-index dataframe.
+    -------
+    Ouputs:
+        - dataframe : The resulting multi-index dataframe.
+    -------
         
     """ 
 
@@ -33,14 +44,24 @@ def build_multi_index_df(years, countries):
             rows_array.append([year,country])
         
     multi_index = pd.MultiIndex.from_tuples(rows_array, names=['year', 'exporter'])
-    data = pd.DataFrame(columns=countries, index=multi_index)
-    return data
+    dataframe = pd.DataFrame(columns=countries, index=multi_index)
+    return dataframe
 
 def FillWithTradeData(data, multi_index_dataframe, years):
     """
+    -------
+    
+    This function fills the multi-index dataframe with the data
+    contained in the dataset. 
+    
+    -------
     Inputs:
         - data (the dataframe containing trade data)
         - dataframe (the empty multi-index dataframe)
+    -------
+    Outputs:
+        - dataframe: a multi-index dataframe filled with the data
+    -------
     """
     for index, row in data.iterrows():
         for year in years:
@@ -91,6 +112,10 @@ def GetRegionIncomeDataWB(file = 'Regions.xlsx', sheetname=0, header=0,
             
     names:  The column headers 
             (default: ['Country Data', 'Region', 'IncomeGroup']).
+    -------
+    Outputs
+    -------
+    dataframe:      The resulting dataframe
     
     """
     countries=pd.read_excel(file, sheetname=sheetname, header=header, 
@@ -314,6 +339,12 @@ def DataCompleteness(dataframe):
     print(percentage)
 
 def CheckDictionaries(dic1, dic2):
+    """
+    
+    This function takes two dictionaries as input and prints values that are
+    contained in one dictionary, but not in the other and vice versa. 
+    
+    """
     print('---------------------------')
     print('Items in dic1 but not in dic2:')
     for item in dic1:
@@ -331,7 +362,15 @@ def CheckDictionaries(dic1, dic2):
             print(item, dic2[item])
 
 def MergeDataFrames(dataframe_WB, dataframe_trade, country_dic_wb, country_dic_trade, conversion_dic):         
-    filled_dataframe=dataframe_trade.copy(deep=False)
+    
+    """
+    
+    This function merges the World Bank dataframe and the Trade dataframe.
+    
+    """
+    
+    
+    filled_dataframe=dataframe_trade.copy()
     for column in dataframe_WB:
         column_name=column
         filled_dataframe[column_name]=None
@@ -359,6 +398,11 @@ def GetCountryCoordinates(country=None):
         return (0,0)
 
 def AddCoordinatesColumn(dataframe, country_dic_trade):
+    """
+    
+    This function adds a coordinates column to a dataframe with countries as index. 
+   
+    """
     dataframe['Latitude']=None
     dataframe['Longitude']=None
     for country in dataframe.index:
@@ -416,6 +460,12 @@ def EmissionFlowDataFrame(dataframe, data):
     return coords_df
 
 def EmissionFlowPlot(coords_df, filename='EmissionFlows.html' ):
+    """
+    
+    This function plots the transferred emissions from country to country. 
+    Larger transfers are represented by a thicker line. 
+    
+    """
     emission_transfers = []
     for i in range( len( coords_df ) ):
         emission_transfers.append(
@@ -455,6 +505,12 @@ def EmissionFlowPlot(coords_df, filename='EmissionFlows.html' ):
         
 
 def CalculatePercentages(dataframe, years):
+    """
+    
+    This function calculates the percentages of the emissions that should be 
+    transferred from one country to another. 
+    
+    """
     percentages=dataframe.copy()
     for year in years:
         df1 = percentages.loc[year].div(percentages.loc[year].sum(axis=1), axis=0)
@@ -465,6 +521,8 @@ def CalculatePercentages(dataframe, years):
 
 def DataPointsPerExporter(dataframe, years):
     """
+    This function calculates how many datapoints there 
+    are for each exporting country.
     Input: 
     - dataframe (percentages)
     - years
